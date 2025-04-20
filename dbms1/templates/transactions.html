@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - Stock Management System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Stock Management System</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/users">Users</a></li>
+                    <li><a href="/stocks">Stocks</a></li>
+                    <li><a href="/transactions" class="active">Transactions</a></li>
+                    <li><a href="/portfolio">Portfolio</a></li>
+                    <li><a href="/brokers">Brokers</a></li>
+                    <li><a href="/watchlist">Watchlist</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Transaction Management</h2>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <section class="form-section">
+            <h3>Record New Transaction</h3>
+            <form action="/add_transaction" method="post">
+                <div class="form-group">
+                    <label for="user_id">User:</label>
+                    <select id="user_id" name="user_id" required>
+                        <option value="">Select User</option>
+                        {% for user in users %}
+                        <option value="{{ user.user_id }}">{{ user.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="stock_id">Stock:</label>
+                    <select id="stock_id" name="stock_id" required>
+                        <option value="">Select Stock</option>
+                        {% for stock in stocks %}
+                        <option value="{{ stock.stock_id }}">{{ stock.symbol }} - {{ stock.company_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="broker_id">Broker:</label>
+                    <select id="broker_id" name="broker_id" required>
+                        <option value="">Select Broker</option>
+                        {% for broker in brokers %}
+                        <option value="{{ broker.broker_id }}">{{ broker.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="transaction_type">Transaction Type:</label>
+                    <select id="transaction_type" name="transaction_type" required>
+                        <option value="BUY">BUY</option>
+                        <option value="SELL">SELL</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="price">Price per Share:</label>
+                    <input type="number" id="price" name="price" step="0.01" required>
+                </div>
+                
+                <button type="submit" class="btn">Record Transaction</button>
+            </form>
+        </section>
+        
+        <section class="table-section">
+            <h3>Transaction History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Stock</th>
+                        <th>Broker</th>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.transaction_id }}</td>
+                        <td>{{ transaction.user_name }}</td>
+                        <td>{{ transaction.symbol }}</td>
+                        <td>{{ transaction.broker_name }}</td>
+                        <td>{{ transaction.transaction_type }}</td>
+                        <td>{{ transaction.quantity }}</td>
+                        <td>${{ transaction.price }}</td>
+                        <td>${{ transaction.quantity * transaction.price }}</td>
+                        <td>{{ transaction.transaction_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Stock Management System</p>
+        </div>
+    </footer>
+</body>
+</html>

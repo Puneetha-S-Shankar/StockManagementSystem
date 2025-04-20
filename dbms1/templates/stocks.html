@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stocks - Stock Management System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Stock Management System</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/users">Users</a></li>
+                    <li><a href="/stocks" class="active">Stocks</a></li>
+                    <li><a href="/transactions">Transactions</a></li>
+                    <li><a href="/portfolio">Portfolio</a></li>
+                    <li><a href="/brokers">Brokers</a></li>
+                    <li><a href="/watchlist">Watchlist</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Stock Management</h2>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <section class="form-section">
+            <h3>Add New Stock</h3>
+            <form action="/add_stock" method="post">
+                <div class="form-group">
+                    <label for="symbol">Symbol:</label>
+                    <input type="text" id="symbol" name="symbol" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="company_name">Company Name:</label>
+                    <input type="text" id="company_name" name="company_name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sector">Sector:</label>
+                    <input type="text" id="sector" name="sector" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="current_price">Current Price:</label>
+                    <input type="number" id="current_price" name="current_price" step="0.01" required>
+                </div>
+                
+                <button type="submit" class="btn">Add Stock</button>
+            </form>
+        </section>
+        
+        <section class="table-section">
+            <h3>Stock List</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Symbol</th>
+                        <th>Company Name</th>
+                        <th>Sector</th>
+                        <th>Current Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in stocks %}
+                    <tr>
+                        <td>{{ stock.stock_id }}</td>
+                        <td>{{ stock.symbol }}</td>
+                        <td>{{ stock.company_name }}</td>
+                        <td>{{ stock.sector }}</td>
+                        <td>${{ stock.current_price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Stock Management System</p>
+        </div>
+    </footer>
+</body>
+</html>

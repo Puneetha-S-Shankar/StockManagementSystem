@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Stock Management System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Stock Management System</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/users">Users</a></li>
+                    <li><a href="/stocks">Stocks</a></li>
+                    <li><a href="/transactions">Transactions</a></li>
+                    <li><a href="/portfolio" class="active">Portfolio</a></li>
+                    <li><a href="/brokers">Brokers</a></li>
+                    <li><a href="/watchlist">Watchlist</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Portfolio Holdings</h2>
+        
+        <!-- Filter by User -->
+        <section class="form-section">
+            <h3>Filter by User</h3>
+            <form action="/portfolio" method="get">
+                <div class="form-group">
+                    <label for="filter_user_id">Select User:</label>
+                    <select id="filter_user_id" name="user_id">
+                        <option value="">All Users</option>
+                        {% for user in users %}
+                        <option value="{{ user.user_id }}">{{ user.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn">Filter</button>
+            </form>
+        </section>
+        
+        <!-- Holdings Table -->
+        <section class="table-section">
+            <h3>Current Holdings</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Stock</th>
+                        <th>Company</th>
+                        <th>Quantity</th>
+                        <th>Current Price</th>
+                        <th>Total Value</th>
+                        <th>Purchase Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for holding in holdings %}
+                    <tr>
+                        <td>{{ holding.holding_id }}</td>
+                        <td>{{ holding.user_name }}</td>
+                        <td>{{ holding.symbol }}</td>
+                        <td>{{ holding.company_name }}</td>
+                        <td>{{ holding.quantity }}</td>
+                        <td>${{ holding.current_price }}</td>
+                        <td>${{ holding.total_value }}</td>
+                        <td>{{ holding.purchase_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Stock Management System</p>
+        </div>
+    </footer>
+</body>
+</html>
