@@ -1,1 +1,2 @@
-# DBMS_project
+# StockManagementSystem
+
