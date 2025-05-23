@@ -1,0 +1,41 @@
+{% extends "admin_base.html" %}
+
+{% block extra_css %}
+<style>
+    .table.table-striped thead.table-dark th {
+        color: #ffffff !important; /* Dark grey color for header text with increased priority */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>All Watchlists</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>User</th>
+                <th>Stock</th>
+                <th>Company</th>
+                <th>Current Price</th>
+                <th>Added On</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for w in watchlist %}
+            <tr>
+                <td>{{ w.user_name }}</td>
+                <td>{{ w.symbol }}</td>
+                <td>{{ w.company_name }}</td>
+                <td>{{ w.current_price }}</td>
+                <td>{{ w.added_on }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %} 

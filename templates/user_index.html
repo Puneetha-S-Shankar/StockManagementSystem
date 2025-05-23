@@ -1,0 +1,132 @@
+{% extends "user_base.html" %}
+
+{% block title %}User Dashboard - Stock Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>Welcome, {{ session.get('name', 'User') }}!</h2>
+            <p class="text-muted">Here's an overview of your stock management activities.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Portfolio Value</h5>
+                    <h3 class="card-text">₹{{ portfolio_value|default('0.00') }}</h3>
+                    <p class="card-text"><small>Total investment value</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active Stocks</h5>
+                    <h3 class="card-text">{{ active_stocks|default(0) }}</h3>
+                    <p class="card-text"><small>Stocks in your portfolio</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Watchlist</h5>
+                    <h3 class="card-text">{{ watchlist_count|default(0) }}</h3>
+                    <p class="card-text"><small>Stocks you're watching</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Transactions</h5>
+                    <h3 class="card-text">{{ recent_transactions|default(0) }}</h3>
+                    <p class="card-text"><small>Last 30 days</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Recent Transactions</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_transactions_list %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Stock</th>
+                                        <th>Type</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in recent_transactions_list %}
+                                    <tr>
+                                        <td>{{ transaction.stock_symbol }}</td>
+                                        <td>{{ transaction.transaction_type }}</td>
+                                        <td>{{ transaction.quantity }}</td>
+                                        <td>₹{{ transaction.price }}</td>
+                                        <td>{{ transaction.transaction_date }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent transactions found.</p>
+                    {% endif %}
+                    <a href="{{ url_for('transactions') }}" class="btn btn-primary">View All Transactions</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Watchlist</h5>
+                </div>
+                <div class="card-body">
+                    {% if watchlist %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Name</th>
+                                        <th>Current Price</th>
+                                        <th>Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stock in watchlist %}
+                                    <tr>
+                                        <td>{{ stock.symbol }}</td>
+                                        <td>{{ stock.name }}</td>
+                                        <td>₹{{ stock.current_price }}</td>
+                                        <td class="{% if stock.price_change > 0 %}text-success{% elif stock.price_change < 0 %}text-danger{% endif %}">
+                                            {{ stock.price_change }}%
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No stocks in your watchlist.</p>
+                    {% endif %}
+                    <a href="{{ url_for('watchlist') }}" class="btn btn-primary">Manage Watchlist</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

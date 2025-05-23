@@ -1,0 +1,129 @@
+{% extends "user_base.html" %}
+
+{% block title %}Portfolio - Stock Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profit { color: #28a745; }
+    .loss { color: #dc3545; }
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .portfolio-summary {
+        font-size: 1.2rem;
+    }
+    .portfolio-value {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    .profit-loss {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    .table th {
+        background-color: #f8f9fa;
+    }
+    .holding-row:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Your Portfolio</h2>
+        <button class="btn btn-primary" onclick="window.location.reload()">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Total Portfolio Value</h5>
+                    <div class="portfolio-value">${{ "%.2f"|format(total_value) }}</div>
+                    <div class="portfolio-summary mt-2">
+                        Total Holdings: {{ holdings|length }} stocks
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Total Profit/Loss</h5>
+                    <div class="profit-loss {% if total_profit_loss >= 0 %}profit{% else %}loss{% endif %}">
+                        ${{ "%.2f"|format(total_profit_loss) }}
+                        {% if total_profit_loss != 0 %}
+                            ({{ "%.2f"|format((total_profit_loss / (total_value - total_profit_loss)) * 100) }}%)
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if holdings %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Company</th>
+                                <th>Quantity</th>
+                                <th>Avg. Purchase Price</th>
+                                <th>Current Price</th>
+                                <th>Current Value</th>
+                                <th>Profit/Loss</th>
+                                <th>Return</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for holding in holdings %}
+                            <tr class="holding-row">
+                                <td><strong>{{ holding.symbol }}</strong></td>
+                                <td>{{ holding.company_name }}</td>
+                                <td>{{ holding.quantity }}</td>
+                                <td>${{ "%.2f"|format(holding.purchase_price) }}</td>
+                                <td>${{ "%.2f"|format(holding.current_price) }}</td>
+                                <td>${{ "%.2f"|format(holding.current_value) }}</td>
+                                <td class="{% if holding.profit_loss >= 0 %}profit{% else %}loss{% endif %}">
+                                    ${{ "%.2f"|format(holding.profit_loss) }}
+                                </td>
+                                <td class="{% if holding.profit_loss >= 0 %}profit{% else %}loss{% endif %}">
+                                    {% set return_pct = ((holding.current_price - holding.purchase_price) / holding.purchase_price) * 100 %}
+                                    {{ "%.2f"|format(return_pct) }}%
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <h4 class="alert-heading">No Holdings Yet!</h4>
+            <p>You haven't made any stock purchases yet. Start by browsing available stocks and making your first investment.</p>
+            <hr>
+            <a href="{{ url_for('stocks') }}" class="btn btn-primary">Browse Stocks</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh the page every 5 minutes to update prices
+    setTimeout(function() {
+        window.location.reload();
+    }, 300000);
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "user_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>My Transactions</h2>
+    
+    <!-- Add Transaction Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Add New Transaction</h4>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('add_transaction') }}" method="POST">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="stock_id" class="form-label">Stock</label>
+                        <select class="form-select" id="stock_id" name="stock_id" required>
+                            <option value="">Select Stock</option>
+                            {% for stock in stocks %}
+                            <option value="{{ stock.stock_id }}" data-symbol="{{ stock.symbol }}">{{ stock.symbol }} - {{ stock.company_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="broker_id" class="form-label">Broker</label>
+                        <select class="form-select" id="broker_id" name="broker_id" required>
+                            <option value="">Select Broker</option>
+                            {% for broker in brokers %}
+                            <option value="{{ broker.broker_id }}">{{ broker.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="transaction_type" class="form-label">Transaction Type</label>
+                        <select class="form-select" id="transaction_type" name="transaction_type" required>
+                            <option value="BUY">Buy</option>
+                            <option value="SELL">Sell</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="price" class="form-label">Price per Share</label>
+                        <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary d-block w-100">Add Transaction</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Transaction History</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Stock</th>
+                            <th>Type</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Broker</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.transaction_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>{{ transaction.symbol }} - {{ transaction.company_name }}</td>
+                            <td>
+                                <span class="badge {% if transaction.transaction_type == 'BUY' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ transaction.transaction_type }}
+                                </span>
+                            </td>
+                            <td>{{ transaction.quantity }}</td>
+                            <td>${{ "%.2f"|format(transaction.price) }}</td>
+                            <td>${{ "%.2f"|format(transaction.quantity * transaction.price) }}</td>
+                            <td>{{ transaction.broker_name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stockSelect = document.getElementById('stock_id');
+    const priceInput = document.getElementById('price');
+    
+    // Function to fetch and update stock price
+    function updateStockPrice(stockId) {
+        if (!stockId) {
+            priceInput.value = '';
+            return;
+        }
+        
+        fetch(`/get_stock_price/${stockId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    priceInput.value = data.price.toFixed(2);
+                } else {
+                    console.error('Error fetching stock price:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+    
+    // Update price when stock is selected
+    stockSelect.addEventListener('change', function() {
+        updateStockPrice(this.value);
+    });
+    
+    // Check if stock_id is in URL parameters (for trade from stocks page)
+    const urlParams = new URLSearchParams(window.location.search);
+    const stockId = urlParams.get('stock_id');
+    if (stockId) {
+        stockSelect.value = stockId;
+        updateStockPrice(stockId);
+    }
+});
+</script>
+{% endblock %}

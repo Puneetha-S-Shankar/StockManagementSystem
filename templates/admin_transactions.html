@@ -1,0 +1,45 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>All Transactions</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Stock</th>
+                <th>Broker</th>
+                <th>Type</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td>{{ t.transaction_id }}</td>
+                <td>{{ t.user_name }}</td>
+                <td>{{ t.symbol }}</td>
+                <td>{{ t.broker_name or '-' }}</td>
+                <td>{{ t.transaction_type }}</td>
+                <td>{{ t.quantity }}</td>
+                <td>{{ t.price }}</td>
+                <td>{{ t.transaction_date }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('admin_delete_transaction', transaction_id=t.transaction_id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this transaction?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %} 

@@ -1,0 +1,64 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Admin Profile - Stock Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between mb-3">
+                <a href="{{ url_for('admin_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+                <a href="{{ url_for('admin_edit_profile') }}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Edit Profile
+                </a>
+            </div>
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">Admin Profile</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4 text-center">
+                            <div class="mb-3">
+                                <i class="bi bi-person-circle" style="font-size: 5rem;"></i>
+                            </div>
+                            <h4>{{ user.first_name }} {{ user.last_name }}</h4>
+                            <span class="badge bg-primary">Administrator</span>
+                        </div>
+                        <div class="col-md-8">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Email</dt>
+                                <dd class="col-sm-8">{{ user.email }}</dd>
+                                <dt class="col-sm-4">Phone</dt>
+                                <dd class="col-sm-8">{{ user.phone }}</dd>
+                                <dt class="col-sm-4">Gender</dt>
+                                <dd class="col-sm-8">{{ user.gender }}</dd>
+                                <dt class="col-sm-4">Date of Birth</dt>
+                                <dd class="col-sm-8">{{ user.date_of_birth }}</dd>
+                                <dt class="col-sm-4">Nationality</dt>
+                                <dd class="col-sm-8">{{ user.nationality }}</dd>
+                                <dt class="col-sm-4">Address</dt>
+                                <dd class="col-sm-8">{{ user.address }}</dd>
+                                <dt class="col-sm-4">City</dt>
+                                <dd class="col-sm-8">{{ user.city }}</dd>
+                                <dt class="col-sm-4">PAN Card Number</dt>
+                                <dd class="col-sm-8">{{ user.pan_card }}</dd>
+                                <dt class="col-sm-4">Aadhar Card Number</dt>
+                                <dd class="col-sm-8">{{ user.aadhar_card }}</dd>
+                                <dt class="col-sm-4">Income</dt>
+                                <dd class="col-sm-8">{{ user.income }}</dd>
+                                <dt class="col-sm-4">Emergency Contact</dt>
+                                <dd class="col-sm-8">{{ user.emergency_contact }}</dd>
+                                <dt class="col-sm-4">Created At</dt>
+                                <dd class="col-sm-8">{{ user.created_at }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

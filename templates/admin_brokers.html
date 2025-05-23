@@ -1,0 +1,165 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Admin - Broker Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Broker Management</h2>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBrokerModal">
+            <i class="bi bi-plus-circle"></i> Add Broker
+        </button>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Commission Rate</th>
+                            <th>Contact Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for broker in brokers %}
+                        <tr>
+                            <td>{{ broker.broker_id }}</td>
+                            <td>{{ broker.name }}</td>
+                            <td>{{ "%.2f"|format(broker.commission_rate) }}%</td>
+                            <td>{{ broker.contact_email }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-primary"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editBrokerModal{{ broker.broker_id }}">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-broker-id="{{ broker.broker_id }}"
+                                            onclick="deleteBroker(this.getAttribute('data-broker-id'))">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Edit Modal for each broker -->
+                        <div class="modal fade" id="editBrokerModal{{ broker.broker_id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Broker</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form action="{{ url_for('admin_edit_broker', broker_id=broker.broker_id) }}" method="POST">
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="name{{ broker.broker_id }}" class="form-label">Broker Name</label>
+                                                <input type="text" class="form-control" id="name{{ broker.broker_id }}" 
+                                                       name="name" value="{{ broker.name }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="commission_rate{{ broker.broker_id }}" class="form-label">Commission Rate (%)</label>
+                                                <input type="number" class="form-control" id="commission_rate{{ broker.broker_id }}" 
+                                                       name="commission_rate" value="{{ broker.commission_rate }}"
+                                                       step="0.01" min="0" max="100" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="contact_email{{ broker.broker_id }}" class="form-label">Contact Email</label>
+                                                <input type="email" class="form-control" id="contact_email{{ broker.broker_id }}" 
+                                                       name="contact_email" value="{{ broker.contact_email }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Broker Modal -->
+<div class="modal fade" id="addBrokerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Broker</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('admin_add_broker') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Broker Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="commission_rate" class="form-label">Commission Rate (%)</label>
+                        <input type="number" class="form-control" id="commission_rate" name="commission_rate" 
+                               step="0.01" min="0" max="100" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact_email" class="form-label">Contact Email</label>
+                        <input type="email" class="form-control" id="contact_email" name="contact_email" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Broker</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function deleteBroker(brokerId) {
+    if (confirm('Are you sure you want to delete this broker?')) {
+        fetch(`/admin/delete_broker/${brokerId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Error deleting broker: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting broker');
+        });
+    }
+}
+</script>
+{% endblock %} 

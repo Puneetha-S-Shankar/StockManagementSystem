@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - Stock Management System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Stock Management System</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/users" class="active">Users</a></li>
+                    <li><a href="/stocks">Stocks</a></li>
+                    <li><a href="/transactions">Transactions</a></li>
+                    <li><a href="/portfolio">Portfolio</a></li>
+                    <li><a href="/brokers">Brokers</a></li>
+                    <li><a href="/watchlist">Watchlist</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>User Management</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <section class="table-section">
+            <h3>User List</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>City</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.user_id }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.phone }}</td>
+                        <td>{{ user.city }}</td>
+                        <td>{{ user.created_at }}</td>
+                        <td class="action-buttons">
+                            <a href="/edit_user/{{ user.user_id }}" class="btn btn-edit btn-sm">Edit</a>
+                            <a href="#" onclick="confirmDelete('{{ user.user_id }}', '{{ user.name }}')" class="btn btn-delete btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Confirm Delete</h4>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <span id="deleteName"></span>?</p>
+                <p>This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelDelete" class="btn btn-secondary">Cancel</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Stock Management System</p>
+        </div>
+    </footer>
+
+    <script>
+        var modal = document.getElementById("deleteModal");
+        var span = document.getElementsByClassName("close")[0];
+        var cancelBtn = document.getElementById("cancelDelete");
+        
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+        
+        cancelBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+        
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        
+        function confirmDelete(userId, userName) {
+            document.getElementById("deleteName").textContent = userName;
+            document.getElementById("confirmDeleteBtn").href = "/delete_user/" + userId;
+            modal.style.display = "block";
+        }
+    </script>
+</body>
+</html> 

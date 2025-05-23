@@ -1,0 +1,77 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User - Stock Management System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Stock Management System</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/users" class="active">Users</a></li>
+                    <li><a href="/stocks">Stocks</a></li>
+                    <li><a href="/transactions">Transactions</a></li>
+                    <li><a href="/portfolio">Portfolio</a></li>
+                    <li><a href="/brokers">Brokers</a></li>
+                    <li><a href="/watchlist">Watchlist</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Edit User</h2>
+        
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <section class="form-section">
+            <h3>Update User Information</h3>
+            <form action="/update_user/{{ user.user_id }}" method="post">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" value="{{ user.name }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input type="text" id="phone" name="phone" value="{{ user.phone }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="city">City:</label>
+                    <input type="text" id="city" name="city" value="{{ user.city }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn">Update User</button>
+                    <a href="/users" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Stock Management System</p>
+        </div>
+    </footer>
+</body>
+</html>

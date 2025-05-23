@@ -1,0 +1,213 @@
+{% extends "user_base.html" %}
+
+{% block title %}My Watchlist - Stock Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Watchlist</h2>
+        <a href="{{ url_for('stocks') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add More Stocks
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if watchlist %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Company Name</th>
+                        <th>Sector</th>
+                        <th>Current Price</th>
+                        <th>Price Change (%)</th>
+                        <th>Added On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in watchlist %}
+                    <tr>
+                        <td>{{ item.symbol }}</td>
+                        <td>{{ item.company_name }}</td>
+                        <td>{{ item.sector }}</td>
+                        <td>₹{{ "%.2f"|format(item.current_price) }}</td>
+                         <td>
+                            {% set change_percent = item.price_change %}
+                            <span class="fw-bold {% if change_percent > 0 %}text-success{% elif change_percent < 0 %}text-danger{% endif %}">
+                                {{ "%.2f"|format(change_percent) }}%
+                            </span>
+                        </td>
+                        <td>{{ item.added_on.strftime('%Y-%m-%d %H:%M:%S') if item.added_on else 'N/A' }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ url_for('transactions') }}" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-cart"></i> Trade
+                                </a>
+                                <button class="btn btn-sm btn-outline-info" onclick="showPriceHistory('{{ item.symbol }}')">
+                                    <i class="bi bi-clock-history"></i> View History
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="removeFromWatchlist({{ item.stock_id }})">
+                                    <i class="bi bi-trash"></i> Remove
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Your watchlist is empty. <a href="{{ url_for('stocks') }}" class="alert-link">Add some stocks</a> to get started!
+        </div>
+    {% endif %}
+</div>
+
+<!-- Price History Modal -->
+<div class="modal fade" id="priceHistoryModal" tabindex="-1" aria-labelledby="priceHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="priceHistoryModalLabel">Price History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="priceHistoryContent">
+                    <!-- Price history table will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showPriceHistory(symbol) {
+        fetch(`/stock_history/${symbol}`)
+            .then(response => {
+                if (!response.ok) throw new Error('HTTP error! status: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                let content = '';
+                if (data.history && data.history.length > 0) {
+                    content += `<table class="table table-bordered">
+                        <thead><tr><th>Date</th><th>Price</th><th>Change</th><th>Change %</th></tr></thead><tbody>`;
+                    data.history.forEach(row => {
+                        content += `<tr>
+                            <td>${formatDate(row.date)}</td>
+                            <td>₹${parseFloat(row.price).toFixed(2)}</td>
+                            <td class="${row.price_change > 0 ? 'text-success' : (row.price_change < 0 ? 'text-danger' : '')}">${parseFloat(row.price_change).toFixed(2)}</td>
+                            <td>${parseFloat(row.price_change_percent).toFixed(2)}%</td>
+                        </tr>`;
+                    });
+                    content += '</tbody></table>';
+                } else {
+                    content = `<div class="alert alert-warning">No price history available.</div>`;
+                }
+                document.getElementById('priceHistoryContent').innerHTML = content;
+                var modal = new bootstrap.Modal(document.getElementById('priceHistoryModal'));
+                modal.show();
+            })
+            .catch(error => {
+                document.getElementById('priceHistoryContent').innerHTML = `<div class="alert alert-danger">Error fetching price history: ${error}</div>`;
+                var modal = new bootstrap.Modal(document.getElementById('priceHistoryModal'));
+                modal.show();
+            });
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString('en-US', {
+            year: 'numeric', month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+    }
+
+    function removeFromWatchlist(stockId) {
+        if (!confirm('Are you sure you want to remove this stock from your watchlist?')) {
+            return;
+        }
+
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i> Removing...';
+
+        fetch('/remove_from_watchlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `stock_id=${stockId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the row from the table
+                const row = button.closest('tr');
+                row.remove();
+                
+                // Show success message
+                const alertHtml = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                document.querySelector('.container').insertAdjacentHTML('afterbegin', alertHtml);
+                
+                // If no more items, show empty message
+                if (document.querySelectorAll('tbody tr').length === 0) {
+                    const tbody = document.querySelector('tbody');
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <div class="alert alert-info mb-0">
+                                    Your watchlist is empty. <a href="{{ url_for('stocks') }}" class="alert-link">Add some stocks</a> to get started!
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            } else {
+                // Show error message
+                const alertHtml = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                document.querySelector('.container').insertAdjacentHTML('afterbegin', alertHtml);
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const alertHtml = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Error removing from watchlist: ${error.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            document.querySelector('.container').insertAdjacentHTML('afterbegin', alertHtml);
+            button.innerHTML = originalText;
+            button.disabled = false;
+        });
+    }
+</script>
+{% endblock %}

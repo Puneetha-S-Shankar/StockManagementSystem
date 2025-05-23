@@ -1,0 +1,53 @@
+{% extends "user_base.html" %}
+
+{% block title %}My Profile - Stock Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between mb-3">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+                <a href="{{ url_for('edit_user', user_id=user.user_id) }}" class="btn btn-primary">Edit Profile</a>
+            </div>
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">My Profile</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">First Name</dt>
+                        <dd class="col-sm-8">{{ user.first_name }}</dd>
+                        <dt class="col-sm-4">Last Name</dt>
+                        <dd class="col-sm-8">{{ user.last_name }}</dd>
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">{{ user.email }}</dd>
+                        <dt class="col-sm-4">Phone</dt>
+                        <dd class="col-sm-8">{{ user.phone }}</dd>
+                        <dt class="col-sm-4">Gender</dt>
+                        <dd class="col-sm-8">{{ user.gender }}</dd>
+                        <dt class="col-sm-4">Date of Birth</dt>
+                        <dd class="col-sm-8">{{ user.date_of_birth }}</dd>
+                        <dt class="col-sm-4">Nationality</dt>
+                        <dd class="col-sm-8">{{ user.nationality }}</dd>
+                        <dt class="col-sm-4">Address</dt>
+                        <dd class="col-sm-8">{{ user.address }}</dd>
+                        <dt class="col-sm-4">City</dt>
+                        <dd class="col-sm-8">{{ user.city }}</dd>
+                        <dt class="col-sm-4">PAN Card Number</dt>
+                        <dd class="col-sm-8">{{ user.pan_card }}</dd>
+                        <dt class="col-sm-4">Aadhar Card Number</dt>
+                        <dd class="col-sm-8">{{ user.aadhar_card }}</dd>
+                        <dt class="col-sm-4">Income</dt>
+                        <dd class="col-sm-8">{{ user.income }}</dd>
+                        <dt class="col-sm-4">Emergency Contact</dt>
+                        <dd class="col-sm-8">{{ user.emergency_contact }}</dd>
+                        <dt class="col-sm-4">Created At</dt>
+                        <dd class="col-sm-8">{{ user.created_at }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
